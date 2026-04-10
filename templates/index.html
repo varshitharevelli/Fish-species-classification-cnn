@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fish Species Classification</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+      <video autoplay muted loop playsinline id="bgVideo">
+    <source src="{{ url_for('static', filename='/live.mp4') }}" type="video/mp4">
+</video>
+    <div class="container">
+       <h1 class="fish-title">🐟 FISH SPECIES CLASSIFICATION</h1>
+
+        <div class="upload-section">
+            <input type="file" id="fileInput" accept="image/*">
+            <button onclick="predict()">Classify Fish</button>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            Classifying...
+        </div>
+
+        <div id="result" class="result" style="display: none;">
+            <div class="image-container">
+                <img id="resultImage" src="" alt="Uploaded fish image">
+            </div>
+            <div class="predictions">
+                <h3>Predictions:</h3>
+                <div id="predictionList"></div>
+            </div>
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+
+        <div class="info">
+            <h3>Supported Fish Species:</h3>
+            <div id="classList"></div>
+        </div>
+    </div>
+
+    <script>
+        // Load available classes on page load
+        window.onload = function() {
+            fetch('/classes')
+                .then(response => response.json())
+                .then(data => {
+                    const classList = document.getElementById('classList');
+                    if (data.classes && data.classes.length > 0) {
+                        classList.innerHTML = data.classes.map(cls =>
+                            `<span class="class-tag">${cls}</span>`
+                        ).join('');
+                    } else {
+                        classList.innerHTML = '<p>No model trained yet. Please train the model first.</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading classes:', error);
+                });
+        };
+
+        function predict() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                showError('Please select an image file');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            showLoading();
+            hideResult();
+            hideError();
+
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+
+                if (data.success) {
+                    showResult(data);
+                } else {
+                    showError(data.error || 'Prediction failed');
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                showError('Network error: ' + error.message);
+            });
+        }
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function showResult(data) {
+            const resultDiv = document.getElementById('result');
+            const image = document.getElementById('resultImage');
+            const predictionList = document.getElementById('predictionList');
+
+            image.src = data.image;
+
+            predictionList.innerHTML = data.predictions.map((pred, index) => `
+                <div class="prediction-item ${index === 0 ? 'top-prediction' : ''}">
+                    <span class="class-name">${pred.class}</span>
+                    <span class="confidence">${pred.confidence}</span>
+                </div>
+            `).join('');
+
+            resultDiv.style.display = 'block';
+        }
+
+        function hideResult() {
+            document.getElementById('result').style.display = 'none';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('error').style.display = 'none';
+        }
+
+        // Drag and drop functionality
+        const fileInput = document.getElementById('fileInput');
+        const uploadSection = document.querySelector('.upload-section');
+
+        uploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadSection.classList.add('drag-over');
+        });
+
+        uploadSection.addEventListener('dragleave', () => {
+            uploadSection.classList.remove('drag-over');
+        });
+
+        uploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadSection.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+            }
+        });
+    </script>
+</body>
+
+</html>
