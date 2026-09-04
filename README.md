@@ -77,9 +77,17 @@ http://127.0.0.1:5000/
 ---
 
 ## Output
-Add screenshots here:
-- Upload page  
-- Prediction result  
+
+<img width="769" height="551" alt="Screenshot 2026-09-04 225635" src="https://github.com/user-attachments/assets/b6f2c28c-bc3a-4536-b29e-5554b34aa271" />
+<img width="836" height="514" alt="Screenshot 2026-09-04 225701" src="https://github.com/user-attachments/assets/52751f2e-bf6e-4148-b498-1cf0612dee77" />
+<img width="814" height="381" alt="Screenshot 2026-09-04 225647" src="https://github.com/user-attachments/assets/26392185-c0b5-4ac5-a577-cf28e22d47b8" />
+
+<img width="685" height="431" alt="Screenshot 2026-09-04 225716" src="https://github.com/user-attachments/assets/038750a5-5dc2-48d3-a014-308e6bd71d96" />
+![Uploading Screenshot 2026-09-04 225701.png…]()
+
+
+
+
 
 ---
 
